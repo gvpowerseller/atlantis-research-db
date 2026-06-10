@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atlantis Research Database</title>
+<style>
+  :root {
+    --bg: #0d0f14;
+    --bg2: #13161e;
+    --bg3: #1a1e2a;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --gold: #c9a84c;
+    --gold2: #e8c87a;
+    --teal: #4ecdc4;
+    --coral: #e8775a;
+    --muted: #6b7280;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --s1: #7c6af5;
+    --s2: #4ecdc4;
+    --s3: #e8775a;
+    --c3: #22c55e;
+    --c2: #eab308;
+    --c1: #f97316;
+    --c0: #6b7280;
+    --radius: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Georgia', serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  /* Header */
+  header {
+    border-bottom: 1px solid var(--border2);
+    padding: 2rem 2.5rem 1.5rem;
+    background: var(--bg2);
+  }
+  .header-inner { max-width: 1400px; margin: 0 auto; }
+  .eyebrow {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  h1 {
+    font-size: 2rem;
+    font-weight: normal;
+    color: var(--gold2);
+    letter-spacing: 0.04em;
+    margin-bottom: 0.4rem;
+  }
+  .subtitle {
+    color: var(--text2);
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+  }
+  /* Controls */
+  .controls {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .controls-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .search-wrap { position: relative; flex: 1; min-width: 220px; }
+  .search-wrap input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    padding: 0.5rem 0.75rem 0.5rem 2.2rem;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+  }
+  .search-wrap input:focus { border-color: var(--gold); }
+  .search-icon {
+    position: absolute;
+    left: 0.6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .filter-group { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .filter-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.05em;
+    transition: all 0.15s;
+  }
+  .filter-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .filter-btn.active { background: var(--gold); color: var(--bg); border-color: var(--gold); font-weight: bold; }
+  .filter-btn.src-s1.active { background: var(--s1); border-color: var(--s1); }
+  .filter-btn.src-s2.active { background: var(--s2); border-color: var(--s2); color: var(--bg); }
+  .filter-btn.src-s3.active { background: var(--s3); border-color: var(--s3); }
+  .count-badge {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    margin-left: auto;
+    white-space: nowrap;
+  }
+  /* Main layout */
+  .main { max-width: 1400px; margin: 0 auto; padding: 1.5rem 2.5rem 4rem; }
+  /* Category section */
+  .category-section { margin-bottom: 2.5rem; }
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border2);
+  }
+  .category-label {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .category-count {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    background: var(--bg3);
+    padding: 1px 6px;
+    border-radius: 10px;
+  }
+  /* Entry card */
+  .entry {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.6rem;
+    transition: border-color 0.15s;
+  }
+  .entry:hover { border-color: var(--border2); }
+  .entry.hidden { display: none; }
+  .entry-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
+  }
+  .corr-badge {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    margin-top: 1px;
+  }
+  .corr-3 { background: rgba(34,197,94,0.15); color: var(--c3); border: 1px solid rgba(34,197,94,0.3); }
+  .corr-2 { background: rgba(234,179,8,0.15); color: var(--c2); border: 1px solid rgba(234,179,8,0.3); }
+  .corr-1 { background: rgba(249,115,22,0.15); color: var(--c1); border: 1px solid rgba(249,115,22,0.3); }
+  .corr-0 { background: rgba(107,114,128,0.15); color: var(--c0); border: 1px solid rgba(107,114,128,0.3); }
+  .entry-claim {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.5;
+    flex: 1;
+  }
+  .entry-claim strong { color: var(--gold2); font-weight: normal; }
+  /* Source pills */
+  .source-pills { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+  .pill {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: 1px solid;
+  }
+  .pill-s1 { color: var(--s1); border-color: rgba(124,106,245,0.4); background: rgba(124,106,245,0.08); }
+  .pill-s2 { color: var(--s2); border-color: rgba(78,205,196,0.4); background: rgba(78,205,196,0.08); }
+  .pill-s3 { color: var(--s3); border-color: rgba(232,119,90,0.4); background: rgba(232,119,90,0.08); }
+  .pill-div { color: var(--coral); border-color: rgba(232,119,90,0.4); background: rgba(232,119,90,0.08); }
+  /* Detail rows */
+  .detail-row {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 0.3rem 0.75rem;
+    font-size: 12px;
+    margin-top: 0.4rem;
+  }
+  .detail-label { color: var(--text3); font-family: 'Courier New', monospace; padding-top: 1px; }
+  .detail-val { color: var(--text2); }
+  .detail-val.conflict { color: var(--coral); }
+  .detail-val.agree { color: var(--teal); }
+  .note-row {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text3);
+    font-style: italic;
+  }
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 11px;
+    font-family: 'Courier New', monospace;
+  }
+  .legend-item { display: flex; align-items: center; gap: 0.4rem; color: var(--text3); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+  /* No results */
+  .no-results { text-align: center; padding: 3rem; color: var(--text3); font-style: italic; display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="eyebrow">Cross-Source Psychic Research — Atlantis Project</div>
+    <h1>Atlantis Research Database</h1>
+    <div class="subtitle">Sources: S1 Edgar Cayce (1923–44) · S2 Sarah Breskman Cosme (2020) · S3 Bashar / Darryl Anka (1983–present)</div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="controls-inner">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="searchInput" placeholder="Search claims, notes, sources..." oninput="filterEntries()">
+    </div>
+    <div class="filter-group">
+      <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+      <button class="filter-btn src-s1" onclick="setFilter('s1', this)">S1 Cayce</button>
+      <button class="filter-btn src-s2" onclick="setFilter('s2', this)">S2 Cosme</button>
+      <button class="filter-btn src-s3" onclick="setFilter('s3', this)">S3 Bashar</button>
+    </div>
+    <div class="filter-group">
+      <button class="filter-btn" onclick="setCorr('all-corr', this)">All</button>
+      <button class="filter-btn" onclick="setCorr('3', this)" style="color:var(--c3)">★★★</button>
+      <button class="filter-btn" onclick="setCorr('2', this)" style="color:var(--c2)">★★</button>
+      <button class="filter-btn" onclick="setCorr('1', this)" style="color:var(--c1)">★</button>
+      <button class="filter-btn" onclick="setCorr('0', this)" style="color:var(--c0)">Unique</button>
+    </div>
+    <span class="count-badge" id="countBadge">— entries</span>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--s1)"></div>S1 = Edgar Cayce</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--s2)"></div>S2 = Sarah Breskman Cosme</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--s3)"></div>S3 = Bashar / Darryl Anka</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--c3)"></div>★★★ = 3-source corroboration</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--c2)"></div>★★ = 2-source corroboration</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--c1)"></div>★ = Partial / thematic only</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--c0)"></div>○ = Single source unique claim</div>
+  </div>
+
+  <div id="noResults" class="no-results">No entries match your search.</div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- CATEGORY 1: CHRONOLOGY -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="category-section" data-category="chronology">
+    <div class="category-header">
+      <span class="category-label">01 — Chronology &amp; Phases</span>
+      <span class="category-count" id="count-chronology"></span>
+    </div>
+
+    <div class="entry" data-sources="s1 s3" data-corr="2">
+      <div class="entry-top">
+        <div class="corr-badge corr-2">★★</div>
+        <div class="entry-claim"><strong>Three distinct phases / civilisations</strong> — Atlantis existed in three separate phases, each rising to a peak and ending catastrophically.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Three destructions explicitly described across readings</span>
+        <span class="detail-label">S2 Cosme</span><span class="detail-val" style="color:var(--text3)">Not explicitly stated as three phases</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val agree">Confirms three phases; validates Lazaris's timeline (~65,000 BCE to ~12,800 BCE)</span>
+      </div>
+    </div>
+
+    <div class="entry" data-sources="s1 s3" data-corr="2">
+      <div class="entry-top">
+        <div class="corr-badge corr-2">★★</div>
+        <div class="entry-claim"><strong>Final destruction date ~10,600–12,800 BCE</strong> — The last Atlantean landmasses were destroyed in a single catastrophic event.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">~10,600 BCE ("before the Prince of Peace")</span>
+        <span class="detail-label">S2 Cosme</span><span class="detail-val" style="color:var(--text3)">No precise date given</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val">~12,800 years ago / ~10,800 BCE. Slight divergence from Cayce (~2,200 years)</span>
+      </div>
+      <div class="note-row">Note: Bashar's date aligns with the Younger Dryas Impact Hypothesis (~12,800 BP). Cayce's date is earlier. Both point to the same general era.</div>
+    </div>
+
+    <div class="entry" data-sources="s1 s3" data-corr="2">
+      <div class="entry-top">
+        <div class="corr-badge corr-2">★★</div>
+        <div class="entry-claim"><strong>First phase began ~65,000 years ago</strong> — Earliest Atlantean civilisation was extremely ancient.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">~200,000 BCE for Amilius/earliest Atlanteans (ambiguous — "light years" caveat)</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val">First phase ~65,000 BCE; prime/height at 20,000–30,000 BCE</span>
+      </div>
+    </div>
+
+    <div class="entry" data-sources="s1 s2" data-corr="2">
+      <div class="entry-top">
+        <div class="corr-badge corr-2">★★</div>
+        <div class="entry-claim"><strong>Lemuria / Mu destroyed before Atlantis</strong> — A separate South Pacific civilisation was destroyed prior to the final Atlantean destruction.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s2">S2 Cosme</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Lemuria mentioned briefly; already gone by ~10,700 BCE</span>
+        <span class="detail-label">S2 Cosme</span><span class="detail-val">Lymuria/Amun destroyed ~25,000 years ago by deliberate Atlantean tidal wave attack</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val">Mu destruction = natural cycles (volcanic/earthquake). Not caused by Atlantis. Diverges from Cosme on mechanism.</span>
+      </div>
+      <div class="note-row">Structural divergence: Cosme says Atlantis deliberately destroyed Lemuria. Bashar says natural cycles. Cayce is silent on mechanism.</div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Halloween / All Souls Day = anniversary of Atlantis destruction</strong> — October 31–November 2 originally commemorated the day before, day of, and day after Atlantis was destroyed.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">Unique to Bashar (B3). Not mentioned in Cayce or Cosme. Highly specific and culturally testable claim.</div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- CATEGORY 2: GEOGRAPHY & LOCATION -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="category-section" data-category="geography">
+    <div class="category-header">
+      <span class="category-label">02 — Geography &amp; Location</span>
+      <span class="category-count" id="count-geography"></span>
+    </div>
+
+    <div class="entry" data-sources="s1 s3" data-corr="2">
+      <div class="entry-top">
+        <div class="corr-badge corr-2">★★</div>
+        <div class="entry-claim"><strong>Atlantis located in the Atlantic Ocean</strong> — Main landmass was in what is now the Atlantic, between the Americas and Europe/Africa.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s2">S2 Cosme</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Between Gulf of Mexico and Mediterranean Sea; size of Europe + Asia</span>
+        <span class="detail-label">S2 Cosme</span><span class="detail-val">Island in Atlantic (implied); Atlanteans distinct from South Pacific Lymurians</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val">Central seat = Bahamas, Cuba, Florida area. Several hundred thousand sq miles originally.</span>
+      </div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Bahamas and Cuba = submerged core of Atlantis</strong> — The Bahamas/Grand Bahama Banks and Cuba were the main islands of Atlantis, now submerged because ocean levels rose 250–300 feet after ice melt.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Poseidia near Bimini (consistent but less specific)</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val">Explicit: Bahamas, Cuba, parts of Florida. Ocean floor maps show original outlines.</span>
+      </div>
+    </div>
+
+    <div class="entry" data-sources="s2 s3" data-corr="2">
+      <div class="entry-top">
+        <div class="corr-badge corr-2">★★</div>
+        <div class="entry-claim"><strong>Lemuria / Mu located in South Pacific</strong> — A separate civilisation existed on South Pacific landmasses now submerged.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s2">S2 Cosme</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S2 Cosme</span><span class="detail-val">South Pacific, encompassing Easter Island area, stretched toward South America</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val">South Pacific land masses now submerged. Hawaii = last remnant above ocean.</span>
+      </div>
+    </div>
+
+    <div class="entry" data-sources="s1 s3" data-corr="2">
+      <div class="entry-top">
+        <div class="corr-badge corr-2">★★</div>
+        <div class="entry-claim"><strong>Empire extended globally</strong> — Atlantean influence reached North/Central/South America, Africa, Mediterranean, Europe, and Asia.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Migrations to Pyrenees, Og/Peru, Yucatan, Egypt, Mound Builder region</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val">Influence extended into N/C/S America, Africa, Mediterranean, Europe, Asian subcontinent</span>
+      </div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Bimini Road = collapsed wall, not a road</strong> — The underwater Bimini Road formation is a collapsed wall from a building, not a road. Visible because ocean levels were 250–300 feet lower during Atlantean times.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Submerged temples near Bimini = records repository</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val conflict">Contradicts Cayce: Bimini Road built AFTER Atlantis (within 5,000 years of destruction) by people drawn to residual energy</span>
+      </div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Underwater structures confirmed off western Cuba</strong> — A definitively confirmed Atlantean outpost has been discovered off the western tip of Cuba, known to a small group of scientists.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">Potentially references the 2001 Paulina Zelitsky / ADC expedition findings off western Cuba. Archaeologically testable.</div>
+    </div>
+
+    <div class="entry" data-sources="s1 s3" data-corr="2">
+      <div class="entry-top">
+        <div class="corr-badge corr-2">★★</div>
+        <div class="entry-claim"><strong>Knossos / Minoan civilisation = Atlantean colony</strong> — The Temple of Knossos on Crete is an Atlantean colony and preserves Atlantean cultural elements.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S3 Bashar</span><span class="detail-val">Temple of Knossos = Atlantean colony. Labyrinth = initiation practice from Atlantis. Crystals buried at each labyrinth turn. Atlanteans were bull worshippers — hence Minotaur legend. Pillars: red and black. Minoan Linear A = derivative of Atlantean script.</span>
+        <span class="detail-label">S1 Cayce</span><span class="detail-val" style="color:var(--text3)">Not mentioned specifically</span>
+      </div>
+      <div class="note-row">Crystals buried at each turn of the Knossos labyrinth is an archaeologically specific and testable claim.</div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- CATEGORY 3: DESTRUCTION MECHANISM -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="category-section" data-category="destruction">
+    <div class="category-header">
+      <span class="category-label">03 — Destruction Mechanism</span>
+      <span class="category-count" id="count-destruction"></span>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Comet impact in Atlantic Ocean</strong> — A large master comet entered eccentric orbit, bombarded Earth twice per year for over two decades, then the primary body struck the Atlantic Ocean causing 300-foot tsunamis.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val conflict">Volcanic/geological upheaval from crystal misuse (Firestone tuned too high)</span>
+        <span class="detail-label">S2 Cosme</span><span class="detail-val conflict">Deliberate sabotage — prisoner fed wrong crystal calculations; bomb misfired</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val agree">Comet impact. Taurid meteor showers = remnants of this comet (matches Younger Dryas Impact Hypothesis)</span>
+      </div>
+      <div class="note-row">Major divergence on mechanism across all three sources. Bashar's comet claim is the only one supported by a mainstream scientific hypothesis (Younger Dryas Impact, ~12,800 BP). Bashar also nuances Cayce: crystal incidents were symptoms of hubris, not the primary cause.</div>
+    </div>
+
+    <div class="entry" data-sources="s1 s2 s3" data-corr="3">
+      <div class="entry-top">
+        <div class="corr-badge corr-3">★★★</div>
+        <div class="entry-claim"><strong>Hubris / moral decline preceded destruction</strong> — The civilisation's downfall was rooted in arrogance, misuse of power, and exploitation of others — not purely the physical event.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s2">S2 Cosme</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Sons of Belial's misuse of the Firestone and exploitation of "things" (slaves)</span>
+        <span class="detail-label">S2 Cosme</span><span class="detail-val">Atlanteans enslaved Animal People as energy conduits; total disregard for life</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val">Hubris/cynicism = root cause. Vibrationally attracted the comet timeline. "Cynicism equals ignorance plus arrogance."</span>
+      </div>
+    </div>
+
+    <div class="entry" data-sources="s1 s2 s3" data-corr="3">
+      <div class="entry-top">
+        <div class="corr-badge corr-3">★★★</div>
+        <div class="entry-claim"><strong>Noah's flood = Atlantean destruction</strong> — The biblical flood story is a racial memory of the Atlantean catastrophe.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s2">S2 Cosme</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Second destruction (~22,006 BCE) equated with Noah's flood</span>
+        <span class="detail-label">S2 Cosme</span><span class="detail-val">Tidal wave caused by Atlantean underwater bombs = flood event</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val agree">Explicitly confirms; flood stories exist in all cultures bordering the Atlantic except South Sea Islanders (Pacific — not affected)</span>
+      </div>
+      <div class="note-row">Bashar adds: Noah was an Atlantean; instructions to build the ark came from extraterrestrials.</div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Taurid meteor showers = remnant of Atlantis comet</strong> — The annual Taurid meteor shower is the debris trail of the comet that destroyed Atlantis, still visible today.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">Independent convergence with mainstream science: The Younger Dryas Impact Hypothesis specifically implicates the Taurid meteor stream and a fragmented comet ~12,800 BP. This is the strongest single point where a psychic claim intersects a legitimate scientific proposal.</div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- CATEGORY 4: TECHNOLOGY -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="category-section" data-category="technology">
+    <div class="category-header">
+      <span class="category-label">04 — Technology &amp; Science</span>
+      <span class="category-count" id="count-technology"></span>
+    </div>
+
+    <div class="entry" data-sources="s1 s2 s3" data-corr="3">
+      <div class="entry-top">
+        <div class="corr-badge corr-3">★★★</div>
+        <div class="entry-claim"><strong>Crystal / energy technology was central</strong> — Crystals were the core power source and technology of Atlantean civilisation.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s2">S2 Cosme</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Firestone / Tuaoi Stone — large cylindrical crystal concentrating solar/stellar rays. Powered aircraft, water craft. Remote energy transmission.</span>
+        <span class="detail-label">S2 Cosme</span><span class="detail-val">Red crystals in cave altars used to channel energy, communicate with ancestors/originators. Crystal misinformation caused final explosion.</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val agree">Crystals gave light and power to capital cities. Long-distance communication between empire islands. Vibration/resonance over nuclear technology.</span>
+      </div>
+      <div class="note-row">High contamination risk — crystal-powered Atlantis is well established in popular culture and Theosophical literature predating all three sources.</div>
+    </div>
+
+    <div class="entry" data-sources="s1 s3" data-corr="2">
+      <div class="entry-top">
+        <div class="corr-badge corr-2">★★</div>
+        <div class="entry-claim"><strong>Aerial / flying vehicles</strong> — Atlanteans operated aircraft of various types.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Gas-lifted aircraft with electrical/crystal ray propulsion. Could operate in air, water, "other elements".</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val agree">Lighter-than-air balloon craft floating above streets. Also aided by vibrational/levitation science — "odd combination of both."</span>
+      </div>
+    </div>
+
+    <div class="entry" data-sources="s1 s2 s3" data-corr="3">
+      <div class="entry-top">
+        <div class="corr-badge corr-3">★★★</div>
+        <div class="entry-claim"><strong>Advanced medical / life extension technology</strong> — Atlanteans possessed advanced biological and medical sciences including life extension.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s2">S2 Cosme</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Body rejuvenation via crystal ray exposure. Long lifespans.</span>
+        <span class="detail-label">S2 Cosme</span><span class="detail-val">Stem cell research, organ cloning, organ regeneration. Energy harvested from Animal People to rejuvenate wealthy Atlanteans. Could cure anything except old age.</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val agree">Could cure people of anything except old age. Typical Atlantean lifespan 120–150 years.</span>
+      </div>
+    </div>
+
+    <div class="entry" data-sources="s1 s2 s3" data-corr="3">
+      <div class="entry-top">
+        <div class="corr-badge corr-3">★★★</div>
+        <div class="entry-claim"><strong>Genetic / hybrid experimentation</strong> — Atlanteans conducted genetic experiments, creating hybrid beings used as a slave class.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s2">S2 Cosme</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">"Things" — projected/hybrid beings used as workers and slaves. Sons of Belial exploited them.</span>
+        <span class="detail-label">S2 Cosme</span><span class="detail-val">"Animal People" — deliberately bred hybrid beings used as energy conduits. Slowly killed by the energy extraction process.</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val agree">"Created a race of slaves" via genetic experimentation. Genetic hybrids also basis for mythological creatures. Used animal legs grafted onto people.</span>
+      </div>
+      <div class="note-row">Strongest three-source corroboration in the corpus. Specific enough detail (deliberate creation of a hybrid underclass for exploitation) that independent convergence is notable despite contamination risk.</div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Ark of the Covenant = step-down transformer of Atlantean crystal technology</strong> — The Ark was a scaled adaptation of Atlantean vibrational resonance technology, used for communication, energy release, and vibrational states.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S3 Bashar</span><span class="detail-val">Resonant ratios shared with Great Pyramid coffer (not identical dimensions). Ark used for propagation of light/energy in Atlantean-derived form.</span>
+      </div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Drum technology for hypnotic teaching</strong> — Hollowed-out logs struck with sticks were matched to heartbeat then slowed to induce hypnotic learning states. Stories told during this state became physically embodied knowledge.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">Unique to Bashar (B3, B5). No equivalent in Cayce or Cosme.</div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- CATEGORY 5: SOCIETY & PEOPLE -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="category-section" data-category="society">
+    <div class="category-header">
+      <span class="category-label">05 — Society, Architecture &amp; People</span>
+      <span class="category-count" id="count-society"></span>
+    </div>
+
+    <div class="entry" data-sources="s1 s2 s3" data-corr="3">
+      <div class="entry-top">
+        <div class="corr-badge corr-3">★★★</div>
+        <div class="entry-claim"><strong>Two opposing moral factions</strong> — Atlantean society split into a spiritually-oriented group and a materialistic/exploitative group.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s2">S2 Cosme</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Sons of the Law of One vs Sons of Belial — WITHIN Atlantis (internal civil war)</span>
+        <span class="detail-label">S2 Cosme</span><span class="detail-val conflict">Lymurians (spiritual, matriarchal) vs Atlanteans (scientific, cold, exploitative) — BETWEEN two civilisations</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val">Children of light vs children of darkness (cites Cayce). Split was internal to Atlantis, both genders involved. Same split now occurring in America.</span>
+      </div>
+      <div class="note-row">Structural divergence: Cayce and Bashar place the split INSIDE Atlantis. Cosme places it BETWEEN two separate civilisations. This is the most significant structural difference in the corpus.</div>
+    </div>
+
+    <div class="entry" data-sources="s1 s3" data-corr="2">
+      <div class="entry-top">
+        <div class="corr-badge corr-2">★★</div>
+        <div class="entry-claim"><strong>Concentric ring city with moat/water system</strong> — The capital city was built in concentric rings with a water/moat system. Class hierarchy tied to ring proximity.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">City of Poseida on hill. Canal/pool system. Tiered building structure.</span>
+        <span class="detail-label">S2 Cosme</span><span class="detail-val">System of moats. Inner ring = elite. Outer rings = lower classes. Bridge with underwater tourism. Circular moat = reservoir.</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val agree">Concentric rings implied in capital city descriptions. Temples, paved stone streets.</span>
+      </div>
+      <div class="note-row">Plato also describes concentric rings — all sources may draw from this shared cultural memory.</div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Architecture: Aztec/Toltec style, NOT Grecian</strong> — True Atlantean architecture resembled Aztec/Toltec with large stone blocks and pyramidal structures. The Grecian appearance is a later misattribution via Greek transmission of Egyptian stories.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S3 Bashar</span><span class="detail-val">Confirmed across B1, B3, B5, B9, B11, B14. Closest modern remnant = Aztec architecture. Mediterranean colonies adopted some Grecian elements later.</span>
+      </div>
+      <div class="note-row">Consistent with Bashar's claim that Atlantis was founded by American Indian migrants — the architecture would naturally reflect that origin.</div>
+    </div>
+
+    <div class="entry" data-sources="s1 s3" data-corr="2">
+      <div class="entry-top">
+        <div class="corr-badge corr-2">★★</div>
+        <div class="entry-claim"><strong>Atlanteans were physically tall</strong> — Atlanteans were significantly taller than modern humans.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Giants: 10–12 feet in early period</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val">Typical average 7–8 feet. Nephilim in the Bible = ancient Atlanteans. Increasing human height today = Atlantean genetic trait re-emerging.</span>
+      </div>
+      <div class="note-row">Both confirm tall stature. Cayce's 10–12 feet is more extreme than Bashar's 7–8 feet. Bashar makes specific Nephilim identification.</div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Atlanteans were brown-skinned, originally indigenous American in appearance</strong> — Early Atlanteans looked like indigenous cultures of the Americas. Later became a melting pot as empire expanded.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S3 Bashar</span><span class="detail-val">Brown-skinned people (B3). Highest Atlantean genetic concentration today: Aztec and Basque (B1, B11, B14).</span>
+        <span class="detail-label">S2 Cosme</span><span class="detail-val conflict">Atlanteans described as pale, blonde, tall — Nordic in appearance</span>
+      </div>
+      <div class="note-row">Direct contradiction: Bashar says brown-skinned indigenous American origin. Cosme describes pale/blonde Atlanteans. This may reflect a temporal difference — early vs late period Atlanteans.</div>
+    </div>
+
+    <div class="entry" data-sources="s1 s3" data-corr="2">
+      <div class="entry-top">
+        <div class="corr-badge corr-2">★★</div>
+        <div class="entry-claim"><strong>Telepathic communication with dolphins / cetaceans</strong> — Atlanteans communicated telepathically with dolphins. Temples had canals allowing dolphins direct access to ceremonies.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Referenced in reading context — connection to nature and spiritual beings</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val agree">Explicit: temples with aqueducts and passageways for dolphins. Telepathic communication using imagery. Dolphins communicated locations of fish and mineable resources on ocean floor.</span>
+      </div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Ancient name was "Aztlan" (A-Z-T-L-A-N)</strong> — The actual ancient name for Atlantis was Aztlan, etymologically meaning "place of whiteness" and "place of herons." The heron connects to the ibis and Thoth/Egyptian priesthood.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">Directly connects to the Aztec mythological homeland "Aztlán." Mainstream scholars place Aztlán as a legendary Mesoamerican origin point. Consistent with Bashar's American Indian → Atlantis origin story.</div>
+    </div>
+
+    <div class="entry" data-sources="s2 s3" data-corr="2">
+      <div class="entry-top">
+        <div class="corr-badge corr-2">★★</div>
+        <div class="entry-claim"><strong>Poseidon / Poseidia = last ruler and island name</strong> — The final Atlantean ruler/deity was associated with the name Poseidon, giving his name to the last major island.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Final islands named Poseidia, Aryan, Og. City of Poseida.</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val agree">Poseidon = name used for the last king of Atlantis. Depicted with dolphins = both Atlantean and Sirius connection.</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- CATEGORY 6: RECORDS PRESERVATION -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="category-section" data-category="records">
+    <div class="category-header">
+      <span class="category-label">06 — Records Preservation &amp; Hidden Knowledge</span>
+      <span class="category-count" id="count-records"></span>
+    </div>
+
+    <div class="entry" data-sources="s1 s2 s3" data-corr="3">
+      <div class="entry-top">
+        <div class="corr-badge corr-3">★★★</div>
+        <div class="entry-claim"><strong>Records/knowledge deliberately preserved before destruction</strong> — Knowing the end was coming, Atlanteans dispersed knowledge into structures and repositories around the world.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s2">S2 Cosme</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Three repositories: Bimini (submerged), Egypt (Hall of Records), Yucatan. "The records are one."</span>
+        <span class="detail-label">S2 Cosme</span><span class="detail-val">Knowledge transferred via blood ritual to young girl. She escaped north (became Norse mythology). Sphinx as entrance to underground records.</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val agree">Libraries in Alexandria, Giza under Sphinx, Yucatan, South America, Peru. Some still undiscovered. Guided construction of pyramids globally. Crystal skulls used to preserve/transmit knowledge.</span>
+      </div>
+    </div>
+
+    <div class="entry" data-sources="s1 s2 s3" data-corr="3">
+      <div class="entry-top">
+        <div class="corr-badge corr-3">★★★</div>
+        <div class="entry-claim"><strong>Records exist under the Sphinx / Giza</strong> — A Hall of Records or library exists at or under the Sphinx/Giza plateau.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s2">S2 Cosme</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Egypt Hall of Records (implied at Giza/Sphinx area in readings)</span>
+        <span class="detail-label">S2 Cosme</span><span class="detail-val agree">Sphinx = "marker into the entrance of what you call Atlantis." Underground access via dream-state scanning.</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val agree">Libraries "in Giza under the Sphinx." Great Pyramid built under Atlantean guidance to preserve knowledge.</span>
+      </div>
+      <div class="note-row">Strongest single-claim three-source corroboration in the database.</div>
+    </div>
+
+    <div class="entry" data-sources="s1 s3" data-corr="2">
+      <div class="entry-top">
+        <div class="corr-badge corr-2">★★</div>
+        <div class="entry-claim"><strong>Records in Yucatan / Central America</strong> — Atlantean libraries or stone records exist in the Yucatan/Central American region.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Stone records brought by Iltar's group. "During the last few months being uncovered" (1933). Between service temple and outer court.</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val agree">Libraries in "certain areas of Yucatan." Still undiscovered.</span>
+      </div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Master Crystal Skull submerged in Bahamas</strong> — The "Zero Skull" or Master Skull lies at the bottom of the ocean in the Bahamas, where the main Atlantean capital was. It is interacting with a natural interdimensional portal, causing the Bermuda Triangle phenomenon.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S3 Bashar</span><span class="detail-val">Confirmed in B12 and B13. Findable via deep sea diving. 13 humans currently connected to the skull network — each connected to one of 13 skulls.</span>
+      </div>
+      <div class="note-row">Consistent with Cayce's Bimini submerged records claim geographically, but the specific crystal skull mechanism is unique to Bashar. Council of 13 would sit in circle around the master skull and chant to release information (B18).</div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Crystal skull at Serpent Mound, Ohio</strong> — A crystal skull is buried near the Serpent Mound effigy in Ohio. The location is encoded in the mound itself.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">Unique to Bashar (B13). Highly specific and archaeologically testable. Connects American Indian mound builder culture to Atlantean knowledge preservation.</div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Halls of Records opened by musical vibration</strong> — The codes and keys to access the Atlantean Halls of Records are based on musical/vibrational resonance, not physical means.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S3 Bashar</span><span class="detail-val">B14: Halls of Records opened by musical vibration. B18: Council of 13 chanted to master skull. Peru stone chambers release stored information at correct resonant frequency. Tibetan chanting = hand-me-down of Atlantean crystal-chanting practice.</span>
+      </div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Crystal skull tradition began ~30,000 years ago</strong> — The crystal skull knowledge tradition stretches back 30,000 years — predating the final Atlantean destruction by ~17,000 years. Rosicrucians and Taoists are much later, fragmentary inheritors.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- CATEGORY 7: MIGRATIONS & CULTURAL LEGACY -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="category-section" data-category="migrations">
+    <div class="category-header">
+      <span class="category-label">07 — Migrations &amp; Cultural Legacies</span>
+      <span class="category-count" id="count-migrations"></span>
+    </div>
+
+    <div class="entry" data-sources="s1 s2 s3" data-corr="3">
+      <div class="entry-top">
+        <div class="corr-badge corr-3">★★★</div>
+        <div class="entry-claim"><strong>Egypt was primary post-destruction destination</strong> — Atlantean survivors migrated primarily to Egypt, seeding or advancing its civilisation.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s2">S2 Cosme</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Atlantean priest class migrated with records. Egyptian civilisation seeded by Atlantean migrants.</span>
+        <span class="detail-label">S2 Cosme</span><span class="detail-val agree">"Most did [go to Egypt]. The ones who went to Egypt were the most successful."</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val agree">Brought technology, architecture, mathematics into Egypt. Built Great Pyramid to preserve knowledge.</span>
+      </div>
+      <div class="note-row">High contamination risk — Egypt as Atlantean legacy is a very well-known popular claim. All three sources may reflect shared cultural knowledge rather than independent access.</div>
+    </div>
+
+    <div class="entry" data-sources="s1 s3" data-corr="2">
+      <div class="entry-top">
+        <div class="corr-badge corr-2">★★</div>
+        <div class="entry-claim"><strong>Yucatan / Central America received Atlantean migrants</strong> — Atlantean survivors reached the Yucatan and Central American region, influencing pre-Mayan civilisation.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Iltar led 10 followers from Poseidia to Yucatan. Stone records deposited. Aztec as later overlay on Atlantean-influenced Mayan base.</span>
+        <span class="detail-label">S2 Cosme</span><span class="detail-val" style="color:var(--text3)">No specific Yucatan migration mentioned</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val agree">Pyramids in Central America built under Atlantean guidance. Libraries in Yucatan area.</span>
+      </div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Lemurians crossed Americas to found Atlantis</strong> — Atlantis was founded by Lemurian/Muan migrants who crossed North, Central, and South America from west to east, creating American Indian civilisations along the way before establishing Atlantis in the Atlantic.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">Unique structural claim. Explains why Atlantean architecture resembles Aztec — it literally is American Indian in origin. Also explains Bashar's claim that Aztec and Basque have highest Atlantean genetic concentration.</div>
+    </div>
+
+    <div class="entry" data-sources="s2" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Knowledge escaped north → became Norse mythology</strong> — The young girl who carried Kala's crystal knowledge escaped north to what is now northern Europe/Scandinavia. The legends of Norse Gods stem from this lineage.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s2">S2 Cosme</span></div>
+      <div class="note-row">Unique to Cosme. Not in Cayce or Bashar. Watch for in future sources.</div>
+    </div>
+
+    <div class="entry" data-sources="s1 s3" data-corr="2">
+      <div class="entry-top">
+        <div class="corr-badge corr-2">★★</div>
+        <div class="entry-claim"><strong>British Isles received Atlantean knowledge</strong> — Knowledge from Atlantean survivors reached the British Isles.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Pyrenees egress (first destruction) — became part of later European/Egyptian population</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val agree">"The British Isles were given a lot of that information" (B2)</span>
+      </div>
+    </div>
+
+    <div class="entry" data-sources="s1 s3" data-corr="2">
+      <div class="entry-top">
+        <div class="corr-badge corr-2">★★</div>
+        <div class="entry-claim"><strong>Dragon mythology = racial memory of the Atlantis comet</strong> — Dragon legends globally originate from the Atlantean destruction comet's burning tail crossing the sky. Also connected to Quetzalcoatl / feathered serpent.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S3 Bashar</span><span class="detail-val">B3, B11, B14: Dragon archetype = comet + feathered serpent + Atlantis destruction. Quetzalcoatl/Kukulkan = the comet embodied. Comets = "bad omens" superstition = racial memory.</span>
+      </div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Hebrew lineage: Atlantis → Egypt → Middle East</strong> — High Anunnaki genetics were preserved through Atlantis, carried into Egypt, then dispersed into the Middle East as the Hebrew people. Deliberate preservation strategy for the hybridisation agenda.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">Unique to Bashar (B8). Specific transmission chain claim. Also: Jews led out of Egypt guided by extraterrestrials (B6).</div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Swastika = ancient Atlantean/global sacred symbol</strong> — The swastika predates Nazi use by thousands of years and represents the flow of creative energy in the cosmos. Found in Tibetan, Native American, and other ancient traditions.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s2">S2 Cosme</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S2 Cosme</span><span class="detail-val">Swastika = ancient symbol of four elements combining; represents chasms/portals from seedling days. Hitler tapping into Atlantean/Lymurian imagery.</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val agree">Sacred circuit representing cosmic creative energy flow. Tibetan and Native American traditions preserved original meaning. Nazis corrupted it.</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- CATEGORY 8: EXTRATERRESTRIAL CONNECTIONS -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="category-section" data-category="et">
+    <div class="category-header">
+      <span class="category-label">08 — Extraterrestrial Connections</span>
+      <span class="category-count" id="count-et"></span>
+    </div>
+
+    <div class="entry" data-sources="s1 s2 s3" data-corr="3">
+      <div class="entry-top">
+        <div class="corr-badge corr-3">★★★</div>
+        <div class="entry-claim"><strong>Extra-terrestrial / off-world origin of Atlantean civilisation</strong> — Atlantean civilisation ultimately traces to beings from another world or dimension.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s2">S2 Cosme</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Metaphysical: souls projected from cosmic source. Amilius as cosmic soul. Five races projected simultaneously.</span>
+        <span class="detail-label">S2 Cosme</span><span class="detail-val">Physical: ET spacecraft crash-landed; hybridisation program between ET crew and hominids. ~50 ships sent to different global locations.</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val agree">Anunnaki injected genetics into hominids. Lemurians = more direct Anunnaki offshoots. Blue-skinned. Sirius = primary star system connected to Atlantis.</span>
+      </div>
+      <div class="note-row">Direction is consistent (off-world origin); mechanism differs significantly (metaphysical projection vs physical spacecraft crash vs genetic injection).</div>
+    </div>
+
+    <div class="entry" data-sources="s2 s3" data-corr="2">
+      <div class="entry-top">
+        <div class="corr-badge corr-2">★★</div>
+        <div class="entry-claim"><strong>Anunnaki as the original colonists / genetic engineers</strong> — The Anunnaki (or equivalent beings) created/modified humanity and seeded the conditions for Atlantean civilisation.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s2">S2 Cosme</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S2 Cosme</span><span class="detail-val">Tall, pale, Nordic-appearing ETs colonised Earth, conducted gene splicing to accelerate human evolution. Also deliberately exterminated dinosaurs via virus and fire.</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val agree">Anunnaki injected DNA into early hominids against their own laws, out of desperation. Lemurians = more direct Anunnaki offshoots. Sirius Council of 13 guided Earth's recovery after Atlantis destruction.</span>
+      </div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Sirius = primary star system connected to Atlantis</strong> — Sirius is the main extraterrestrial connection to Atlantean civilisation. Sirius Council of 13 guided Earth's recovery post-destruction.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S3 Bashar</span><span class="detail-val">Confirmed across multiple sessions. Poseidon depicted with dolphins = Sirius connection. Rh negative blood linked to Sirius lineage (B6). Council of 13 formed from Sirian physical beings who visited Earth after destruction.</span>
+      </div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Grays did not exist during Atlantean times</strong> — The Gray extraterrestrials did not enter Earth's timeline until approximately 6,000 years ago — long after Atlantis was destroyed. Atlantean ET connections were exclusively Anunnaki and Sirius.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">Specific chronological boundary claim (B14). Places Gray contact history clearly after Atlantis, roughly contemporaneous with early Sumerian civilisation.</div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Thoth = representation of Atlantean priest archetype</strong> — The Egyptian deity Thoth sometimes represented actual Atlantean priests who brought crystal skull knowledge to local cultures, and sometimes the archetypal idea of that knowledge itself.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">Consistent with Bashar's Atlantis → Egypt transmission chain. Jesus also identified as belonging to a lineage more ancient than the Essenes, connected to Thoth's tradition (B18).</div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- CATEGORY 9: UNIQUE / SINGLE SOURCE CLAIMS -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="category-section" data-category="unique">
+    <div class="category-header">
+      <span class="category-label">09 — High-Value Unique Claims (watch for S4+)</span>
+      <span class="category-count" id="count-unique"></span>
+    </div>
+
+    <div class="entry" data-sources="s1" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>[S1] Earth pole shift</strong> — At time of early Atlantis: Nile flowed into Atlantic (not Mediterranean), Sahara was fertile, Mississippi basin was ocean, Nevada/Utah/Arizona plateau was exposed land, Urals were tropical, polar regions occupied current tropical zones.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span></div>
+      <div class="note-row">Most geologically testable claim in the Cayce corpus. If any other source independently confirms these specific geographic reversals, corroboration would be extremely significant.</div>
+    </div>
+
+    <div class="entry" data-sources="s1" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>[S1] Iltar migration: Poseidia → Yucatan with 10 followers</strong> — At final destruction, Iltar led exactly 10 followers from Poseidia west to Yucatan, depositing records. "Lost Tribes" injection into Yucatan ~3,000 BCE.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span></div>
+      <div class="note-row">Cayce's most specific migration claim. Not corroborated by Cosme or Bashar specifically. Bashar confirms Yucatan connection but not the Iltar detail.</div>
+    </div>
+
+    <div class="entry" data-sources="s2" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>[S2] Atlantis deliberately destroyed Lemuria via underwater bombs</strong> — Atlanteans placed atomic-type devices in ocean rifts, creating a massive tidal wave that wiped out the Lymurian civilisation of Amun.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s2">S2 Cosme</span></div>
+      <div class="note-row">Direct conflict with Bashar (natural cycles) and absent from Cayce. One of the most structurally significant divergences in the corpus.</div>
+    </div>
+
+    <div class="entry" data-sources="s2" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>[S2] Animal People used as living energy conduits</strong> — Atlanteans bred hybrid "Animal People" specifically to conduct energy, slowly killing them as it overloaded their systems. A deliberate breeding program of disposable labor.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s2">S2 Cosme</span></div>
+      <div class="note-row">Cosme's most detailed unique claim. Cayce's "things" and Bashar's "race of slaves" are related but less specific on the energy-conductor mechanism. Watch for S4.</div>
+    </div>
+
+    <div class="entry" data-sources="s2" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>[S2] Mt. Shasta connected to Lymuria via underground chasm</strong> — A child pushed into a chasm during a Lymurian earthquake arrived at Mt. Shasta, California, where original colonists lived. This is the "two sisters" prophecy.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s2">S2 Cosme</span></div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>[S3] Tibet was equally developed to Atlantis at its peak</strong> — Tibet is identified as one of the few civilisations that reached comparable technological and spiritual development to Atlantis at its height.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>[S3] Japan has Lemurian / Muan genetics</strong> — Japan received Muan genetic input from southerly Pacific island migrations northward. Mostly Lemurian/Muan rather than Atlantean.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>[S3] California's western coast settled by Lemurian seafarers</strong> — Large influx of Lemurian seafarers crossed the Pacific into what is now the western coast of North America. Lemurian temples and vortexes remain in California.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>[S3] Orichalcum = alloy of gold, silver, and copper</strong> — The Atlantean alloy orichalcum contained gold, silver, and copper. Buildings were sheathed in it. Consistent with Plato's description.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- CATEGORY 10: INDEPENDENCE ASSESSMENT -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="category-section" data-category="methodology">
+    <div class="category-header">
+      <span class="category-label">10 — Methodology &amp; Independence Assessment</span>
+      <span class="category-count" id="count-methodology"></span>
+    </div>
+
+    <div class="entry" data-sources="s1 s2 s3" data-corr="1">
+      <div class="entry-top">
+        <div class="corr-badge corr-1">★</div>
+        <div class="entry-claim"><strong>S2 (Cosme) is NOT independent of S1 (Cayce)</strong> — Cosme explicitly cites Cayce in her introduction as a "famous writer" who "foretold tales" of Atlantis. Corroboration between S1 and S2 on major well-known Cayce claims is significantly weakened.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-div">⚠ Methodological note</span></div>
+      <div class="note-row">Highest-value S1/S2 corroborations are those where Cosme DIVERGES structurally from Cayce (e.g. the faction split being inter-civilisational rather than internal). A copyist would not diverge.</div>
+    </div>
+
+    <div class="entry" data-sources="s1 s2 s3" data-corr="1">
+      <div class="entry-top">
+        <div class="corr-badge corr-1">★</div>
+        <div class="entry-claim"><strong>S3 (Bashar) has conscious awareness of S1 (Cayce)</strong> — In B3 and B17, Bashar/Anka directly cites Cayce's "children of light and children of darkness" terminology by name. Darryl Anka in B17 interview names Cayce explicitly.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-div">⚠ Methodological note</span></div>
+      <div class="note-row">Most valuable Bashar corroboration points: claims that EXCEED or DIFFER from Cayce (comet mechanism, Aztlan name, Knossos labyrinth, Taurid shower, crystal skull network, musical resonance keys). These cannot be explained by Cayce contamination.</div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="1">
+      <div class="entry-top">
+        <div class="corr-badge corr-1">★</div>
+        <div class="entry-claim"><strong>Strongest independent corroboration: Taurid / Younger Dryas intersection</strong> — Bashar's claim that the Taurid meteor showers are remnants of the comet that destroyed Atlantis independently converges with the Younger Dryas Impact Hypothesis — a legitimate mainstream scientific proposal (~12,800 BP comet fragmentation event).</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">This is the single point in the entire project where a psychic source claim intersects a testable scientific hypothesis without the hypothesis being widely known in New Age circles at the time of the channelling. Researchers: Graham Hancock, Randall Carlson, Younger Dryas Impact Hypothesis proponents.</div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- CATEGORY 11: MOON, PYRAMIDS & COSMIC STRUCTURES -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="category-section" data-category="cosmic">
+    <div class="category-header">
+      <span class="category-label">11 — Moon, Pyramids &amp; Cosmic Structures</span>
+      <span class="category-count" id="count-cosmic"></span>
+    </div>
+
+    <div class="entry" data-sources="s1 s3" data-corr="2">
+      <div class="entry-top">
+        <div class="corr-badge corr-2">★★</div>
+        <div class="entry-claim"><strong>Moon repositioned AFTER Atlantis destruction and polar shift</strong> — The moon is a natural body but was engineered, doctored, and intentionally repositioned around Earth after the Atlantean destruction and the resulting polar shift, to act as a cycle regulator and balancer to prevent such catastrophic events recurring.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s1">S1 Cayce</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S1 Cayce</span><span class="detail-val">Earth pole shift described — Nile flowed into Atlantic, Sahara fertile, polar regions occupied tropical zones. Consistent with a post-destruction stabilisation event.</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val agree">B24: Moon positioned after Atlantis destruction and last polar shift. B7: Moon augmented by ET bases and devices. Timing: after ~10,800 BCE. Bashar states he will go into more detail "at another time."</span>
+      </div>
+      <div class="note-row">Inferred date: sometime after ~10,800 BCE based on Bashar's destruction timeline. This creates a specific causal chain: cometary impact → Atlantis destroyed → polar shift → moon repositioned to stabilise Earth's cycles. Directly corroborates Cayce's pole shift claim and provides a mechanism for why the poles subsequently stabilised.</div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Great Pyramid = phi ratio structure encoding Earth/Moon/Mars relationships</strong> — The Great Pyramid's proportions are exactly phi (1:1.618). Base angles 51°, apex 78°. Using the pyramid as a geometric template, the large circle = Earth's diameter, small circle on top = Moon's diameter, circle below = Mars's diameter. All three bodies also have pyramidal structures.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S3 Bashar</span><span class="detail-val">B23, B24: Built ~10,500 BCE. Took ~100 years across multiple generations. Dual purpose: (1) preserve Atlantean science against future cometary disasters, (2) amplify gamma state for astral projection by initiates in the King's Chamber coffer. Ancient texts (Hebrew, Sanskrit) contain holographically coded Atlantean knowledge.</span>
+      </div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Göbekli Tepe = Atlantean training centre</strong> — Göbekli Tepe is an Atlantean remnant that functioned as a training centre for developing human capabilities including telepathy and astral projection — part of a deliberate project to begin creating fourth-density beings.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">B23. Mainstream archaeology dates Göbekli Tepe to ~11,500 BCE — consistent with post-destruction Atlantean survivor period. Bashar notes it is also connected to something else he declines to discuss. Training centre function (telepathy, astral projection) directly parallels the Great Pyramid King's Chamber function described in B20.</div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Pyramid stones moved by vibrational levitation</strong> — Earliest pyramids had stones moved primarily by vibrational levitation — matching an object's signature frequency at the correct pitch cancels gravitational effects. Hathor rattles, horns, and drums in combination formed the overall signature frequency. Later pyramids used mechanical apparatus when this knowledge was lost.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">B25. Modern scientists beginning to achieve this through acoustic and electromagnetic levitation. Consistent with Bashar's broader resonance/frequency technology framework. Connects to Hathor priesthood's Atlantean heritage (B21).</div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Baalbek and ancient Mayan/Aztec sites = Anunnaki remnants</strong> — Baalbek and certain ancient Mayan and Aztec sites have direct or offshoot connections to ancient Anunnaki bases and headquarters on Earth — explaining construction that appears beyond the technology of the attributed time period.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">B23. Consistent with alternative archaeology arguments about Baalbek's impossibly large Trilithon stones. Connects to Bashar's broader Atlantis → Egypt → global civilisation framework.</div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- CATEGORY 12: ADDITIONAL UNIQUE CLAIMS (B19-B26) -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="category-section" data-category="unique2">
+    <div class="category-header">
+      <span class="category-label">12 — Additional Unique Claims (Sessions B19–B26)</span>
+      <span class="category-count" id="count-unique2"></span>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>America = modern replay of Atlantean cycle</strong> — The continents of America are a modern interpretation of the Atlantean cycle, giving humanity an opportunity to make different choices and avoid attracting the same destruction. The same vibrational split (children of light vs darkness) is now accelerating in America. Atlantis is expected to literally rise again in the Americas.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">Consistent across B3, B5, B14, B17, B19, B22. One of the most repeated Bashar claims across all sessions.</div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Seventh hybrid race introduced — "Morningstar"</strong> — A being called Morningstar, identified as a member of the seventh hybrid race, briefly communicated through Bashar's session (B19). This is the first mention of a seventh hybrid race — Bashar has previously only described humanity evolving toward a sixth hybrid race.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">B19. No further detail given. Watch for elaboration in future sessions.</div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Halloween origin = Atlantis destruction anniversary confirmed again</strong> — Aztlan (Atlantis) ancient name reconfirmed as "Aztlan" or "Aslan" in original tongue across multiple sessions (B3, B5, B13, B19). October 31–November 2 = anniversary of destruction.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">Internal consistency: Bashar uses both "Aztlan" and "Aslan" across different sessions — likely transcription variation of the same word.</div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Atlantean best practices: food propagation and cosmic/mathematical architecture</strong> — The best of Atlantean civilisation for modern application: (1) knowledge of natural food propagation to feed the world, (2) cosmic and mathematical principles encoded in architecture, (3) different technological pathways not yet discovered. Atlanteans were not more advanced than us — differently advanced.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">B22. Technology vs nature imbalance identified as a contributing factor to Atlantean fall — specifically many Atlanteans relied too much on technology and lost connection to nature.</div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Mermaids = two phenomena: Atlantean genetic experiments + dimensional beings</strong> — A limited number of human-aquatic hybrids were created during Atlantean genetic experimentation, existing briefly and entering legend. Separately, mer-people exist as fully corporeal beings in a slightly alternate dimension — occasionally crossing into our reality through portals.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">B21. Extends the Atlantean hybrid/slave class theme — aquatic hybrids were among the experimental creations. Consistent with Bashar's B5 claim that mythological creatures were based on Atlantean genetic experiments.</div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Hathor priests practiced Atlantean-derived life-energy technique</strong> — Ancient Egyptian priests of Hathor practiced a form of living on chi/life energy connected to the Hathor vibration — traced back to Atlantean priestly heritage. This is how Atlantean energetic knowledge was transmitted into Egyptian religious practice.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">B21. Extends the Atlantis → Egypt transmission chain into specific religious/energetic practices, not just architecture and astronomical knowledge.</div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Rh negative blood = Lemurian blue blood lineage</strong> — Rh negative blood traces to Lemurian civilisations that had taller stature and slightly blue-tinted skin — the origin of the term "blue blood." Rh negative people have none of the Rhesus factor present in 80% of humans because their bloodline traces to pre-alteration ET genetic stock rather than the hominid branch. Connected to Sirius lineage (B6).</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">B25 extends B6. Two Bashar sessions now converge on Rh negative = ET/Lemurian/Sirius genetic lineage. Consistent with Bashar's B1 description of Lemurians as "slightly tinted blue skin" and "more direct offshoots of the Anunnaki."</div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Elongated skulls = humans emulating ET progenitors</strong> — Elongated skull people found globally were not a separate species — they were humans who had advanced to understand they were emulating the actual progenitor ET species. Some could literally shapeshift; others used head-binding techniques. The actual progenitor species has not yet been found archaeologically.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">B25. Connects to Anunnaki "8–9 feet tall, slightly blue-skinned" description (B23) — humans were emulating the Anunnaki physical form. The elongated skull shape = attempted match to Anunnaki cranial structure.</div>
+    </div>
+
+    <div class="entry" data-sources="s3" data-corr="0">
+      <div class="entry-top">
+        <div class="corr-badge corr-0">○</div>
+        <div class="entry-claim"><strong>Anunnaki created ~300,000 years ago / gold = vibration of longevity</strong> — Homo sapiens created by Anunnaki approximately 300,000 years ago. Gold was sought by Anunnaki because its vibrational frequency represents longevity and timelessness — why gold never tarnishes. A faction had gold-mining intentions; not all Anunnaki agreed; those on Earth were eventually recalled.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="note-row">B25. Consistent with B2 (Anunnaki broke their own laws out of desperation) and B23 (they hid their activities from their own authorities due to infrequent communication with home world).</div>
+    </div>
+
+    <div class="entry" data-sources="s2 s3" data-corr="2">
+      <div class="entry-top">
+        <div class="corr-badge corr-2">★★</div>
+        <div class="entry-claim"><strong>Mt. Shasta = dimensional portal / Lemurian connection</strong> — Mt. Shasta in California is identified as a significant dimensional portal and energy location connected to Lemurian history.</div>
+      </div>
+      <div class="source-pills"><span class="pill pill-s2">S2 Cosme</span><span class="pill pill-s3">S3 Bashar</span></div>
+      <div class="detail-row">
+        <span class="detail-label">S2 Cosme</span><span class="detail-val">A child pushed into a chasm during a Lymurian earthquake arrived at Mt. Shasta, California, where original colonists lived. Underground connection between Lymuria and Mt. Shasta.</span>
+        <span class="detail-label">S3 Bashar</span><span class="detail-val agree">B26: Mt. Shasta questioner photographs unusual energy orbs. Bashar's B14 identifies California's western coast as receiving large influx of Lemurian seafarers.</span>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  let activeSource = 'all';
+  let activeCorr = 'all-corr';
+
+  function setFilter(val, btn) {
+    activeSource = val;
+    document.querySelectorAll('.filter-group:first-of-type .filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterEntries();
+  }
+
+  function setCorr(val, btn) {
+    activeCorr = val;
+    document.querySelectorAll('.filter-group:last-of-type .filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterEntries();
+  }
+
+  function filterEntries() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const entries = document.querySelectorAll('.entry');
+    let visible = 0;
+
+    entries.forEach(e => {
+      const sources = e.dataset.sources || '';
+      const corr = e.dataset.corr || '0';
+      const text = e.textContent.toLowerCase();
+
+      const srcMatch = activeSource === 'all' || sources.includes(activeSource);
+      const corrMatch = activeCorr === 'all-corr' || corr === activeCorr;
+      const textMatch = !q || text.includes(q);
+
+      if (srcMatch && corrMatch && textMatch) {
+        e.classList.remove('hidden');
+        visible++;
+      } else {
+        e.classList.add('hidden');
+      }
+    });
+
+    document.getElementById('countBadge').textContent = visible + ' entr' + (visible === 1 ? 'y' : 'ies');
+    document.getElementById('noResults').style.display = visible === 0 ? 'block' : 'none';
+
+    // Update category counts
+    document.querySelectorAll('.category-section').forEach(section => {
+      const cat = section.dataset.category;
+      const catEntries = section.querySelectorAll('.entry:not(.hidden)');
+      const countEl = document.getElementById('count-' + cat);
+      if (countEl) countEl.textContent = catEntries.length + ' visible';
+    });
+  }
+
+  // Init count
+  window.addEventListener('load', filterEntries);
+</script>
+</body>
+</html>
